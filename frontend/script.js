@@ -1,64 +1,150 @@
+// Global error handler for fetch requests
+async function handleFetch(url, options = {}) {
+  try {
+    const response = await fetch(url, options);
+    const data = await response.json();
+    return { response, data };
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw new Error('Network error occurred. Please try again.');
+  }
+}
+
 // Handle form submission
 const form = document.getElementById("submission-form");
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  
+  try {
+    const formData = new FormData(form);
+    
+    // Validate form data
+    const name = formData.get('name');
+    const socialMediaHandle = formData.get('socialMediaHandle');
+    const images = formData.getAll('images');
+    
+    if (!name || !socialMediaHandle) {
+      throw new Error('Name and social media handle are required');
+    }
+    
+    if (images.length === 0 || (images.length === 1 && images[0].size === 0)) {
+      throw new Error('Please select at least one image');
+    }
 
-  const formData = new FormData(form);
-  const response = await fetch("http://localhost:5000/api/users", {
-    method: "POST",
-    body: formData,
-  });
+    const { response, data } = await handleFetch("http://localhost:5000/api/users", {
+      method: "POST",
+      body: formData,
+    });
 
-  const result = await response.json();
-  if (response.status === 201) {
-    alert(result.message);
-    form.reset(); // Clear the form fields after submission
-    loadUsers(); // Reload users list after submission
-  } else {
-    alert("Error: " + result.error);
+    if (response.status === 201) {
+      alert(data.message);
+      form.reset();
+      await loadUsers();
+    } else {
+      throw new Error(data.error || 'Failed to submit form');
+    }
+  } catch (error) {
+    alert(`Error: ${error.message}`);
   }
 });
 
 // Fetch users and display them
 async function loadUsers() {
-  const response = await fetch("http://localhost:5000/api/users");
-  const users = await response.json();
+  try {
+    const userList = document.getElementById("user-list");
+    userList.innerHTML = '<div class="loading">Loading users...</div>';
 
-  const userList = document.getElementById("user-list");
-  userList.innerHTML = ""; // Clear the current list
+    const { data: users } = await handleFetch("http://localhost:5000/api/users");
 
-  users.forEach((user) => {
-    const userCard = document.createElement("div");
-    userCard.classList.add("user-card");
+    userList.innerHTML = users.length ? '' : '<div class="no-users">No users found</div>';
 
-    // Create and append image elements
-    user.images.forEach((imgSrc) => {
-      const img = document.createElement("img");
-      img.src = imgSrc;
-      img.alt = "User Image";
-      img.addEventListener("click", () => openModal(imgSrc)); // Open modal on click
-      userCard.appendChild(img);
+    users.forEach((user) => {
+      const userCard = document.createElement("div");
+      userCard.classList.add("user-card");
+
+      // Add user info
+      const userInfo = document.createElement("div");
+      userInfo.classList.add("user-info");
+      userInfo.innerHTML = `
+        <h3>${sanitizeHTML(user.name)}</h3>
+        <p>@${sanitizeHTML(user.socialMediaHandle)}</p>
+      `;
+
+      // Add image gallery
+      const imageGallery = document.createElement("div");
+      imageGallery.classList.add("image-gallery");
+
+      user.images.forEach((imgSrc) => {
+        const imgContainer = document.createElement("div");
+        imgContainer.classList.add("image-container");
+
+        const img = document.createElement("img");
+        img.src = imgSrc;
+        img.alt = `${user.name}'s image`;
+        img.loading = "lazy"; // Enable lazy loading
+        img.addEventListener("click", () => openModal(imgSrc, user.name));
+
+        imgContainer.appendChild(img);
+        imageGallery.appendChild(imgContainer);
+      });
+
+      userCard.appendChild(userInfo);
+      userCard.appendChild(imageGallery);
+      userList.appendChild(userCard);
     });
-
-    userCard.innerHTML += `<h3>${user.name}</h3><p>@${user.socialMediaHandle}</p>`;
-    userList.appendChild(userCard);
-  });
+  } catch (error) {
+    const userList = document.getElementById("user-list");
+    userList.innerHTML = `<div class="error">Error loading users: ${error.message}</div>`;
+  }
 }
 
-// Open modal to view image in full size
-function openModal(imgSrc) {
+// Sanitize HTML to prevent XSS
+function sanitizeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Modal functionality
+function openModal(imgSrc, userName) {
   const modal = document.getElementById("image-modal");
   const modalImage = document.getElementById("modal-image");
+  const modalCaption = document.getElementById("modal-caption");
 
-  modal.style.display = "block";
   modalImage.src = imgSrc;
+  modalImage.alt = `${userName}'s full size image`;
+  modalCaption.textContent = `Image shared by ${userName}`;
+  
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden"; // Prevent scrolling when modal is open
 }
 
-// Close modal when the close button is clicked
-document.getElementById("close-modal").addEventListener("click", () => {
+// Close modal functionality
+function closeModal() {
   const modal = document.getElementById("image-modal");
-  modal.style.display = "none";
+  modal.classList.remove("active");
+  document.body.style.overflow = ""; // Restore scrolling
+}
+
+// Event listeners for modal
+document.getElementById("close-modal").addEventListener("click", closeModal);
+
+// Close modal when clicking outside the image
+document.getElementById("image-modal").addEventListener("click", (e) => {
+  if (e.target.id === "image-modal") {
+    closeModal();
+  }
+});
+
+// Close modal with Escape key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && document.getElementById("image-modal").classList.contains("active")) {
+    closeModal();
+  }
 });
 
 // Load users when the page is loaded
-window.onload = loadUsers;
+window.addEventListener("load", loadUsers);
+
+// Refresh users periodically (every 30 seconds)
+setInterval(loadUsers, 30000);

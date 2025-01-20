@@ -3,39 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Social Media Task - User submission and admin dashboard">
   <title>Social Media Task</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Social Media Task</h1>
+  <header>
+    <h1>Social Media Task</h1>
+  </header>
 
-  <!-- User Submission Form -->
-  <section id="user-form">
-    <h2>Submit Your Details</h2>
-    <form id="submission-form" enctype="multipart/form-data">
-      <label for="name">Name:</label>
-      <input type="text" id="name" name="name" required>
-      
-      <label for="socialMediaHandle">Social Media Handle:</label>
-      <input type="text" id="socialMediaHandle" name="socialMediaHandle" required>
-      
-      <label for="images">Upload Images:</label>
-      <input type="file" id="images" name="images" multiple required>
-      
-      <button type="submit">Submit</button>
-    </form>
-  </section>
+  <main>
+    <!-- User Submission Form -->
+    <section id="user-form" class="container">
+      <h2>Submit Your Details</h2>
+      <form id="submission-form" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required 
+                 minlength="2" maxlength="50" 
+                 placeholder="Enter your full name">
+        </div>
+        
+        <div class="form-group">
+          <label for="socialMediaHandle">Social Media Handle:</label>
+          <input type="text" id="socialMediaHandle" name="socialMediaHandle" required
+                 minlength="2" maxlength="30"
+                 placeholder="@yourusername">
+        </div>
+        
+        <div class="form-group">
+          <label for="images">Upload Images:</label>
+          <input type="file" id="images" name="images" multiple required
+                 accept="image/*"
+                 aria-describedby="image-help">
+          <small id="image-help" class="help-text">You can select multiple images (max 10)</small>
+        </div>
+        
+        <button type="submit" class="btn-submit">Submit</button>
+      </form>
+    </section>
 
-  <!-- Admin Dashboard -->
-  <section id="admin-dashboard">
-    <h2>Admin Dashboard</h2>
-    <div id="user-list"></div>
-  </section>
+    <!-- Admin Dashboard -->
+    <section id="admin-dashboard" class="container">
+      <h2>Admin Dashboard</h2>
+      <div id="user-list" class="user-grid">
+        <!-- Users will be dynamically added here -->
+      </div>
+    </section>
+  </main>
 
   <!-- Modal for Image View -->
-  <div id="image-modal" class="modal">
-    <span id="close-modal" class="close">&times;</span>
-    <img id="modal-image" class="modal-content" />
+  <div id="image-modal" class="modal" role="dialog" aria-labelledby="modal-title">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h3 id="modal-title" class="modal-title">Image Preview</h3>
+        <button id="close-modal" class="close-button" aria-label="Close modal">×</button>
+      </header>
+      <div class="modal-body">
+        <img id="modal-image" alt="" class="modal-image">
+        <p id="modal-caption" class="modal-caption"></p>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
