@@ -12,6 +12,7 @@ form.addEventListener("submit", async (e) => {
   const result = await response.json();
   if (response.status === 201) {
     alert(result.message);
+    form.reset(); // Clear the form fields after submission
     loadUsers(); // Reload users list after submission
   } else {
     alert("Error: " + result.error);
@@ -30,30 +31,34 @@ async function loadUsers() {
     const userCard = document.createElement("div");
     userCard.classList.add("user-card");
 
-    const images = user.images.map((imgSrc) => {
+    // Create and append image elements
+    user.images.forEach((imgSrc) => {
       const img = document.createElement("img");
       img.src = imgSrc;
       img.alt = "User Image";
-      img.addEventListener("click", () => {
-        const modal = document.createElement("div");
-        modal.classList.add("modal");
-        const modalImage = document.createElement("img");
-        modalImage.src = imgSrc;
-        modal.appendChild(modalImage);
-        document.body.appendChild(modal);
-
-        modal.addEventListener("click", () => {
-          modal.remove(); // Close the modal when clicked
-        });
-      });
-      return img;
+      img.addEventListener("click", () => openModal(imgSrc)); // Open modal on click
+      userCard.appendChild(img);
     });
 
-    userCard.appendChild(...images);
     userCard.innerHTML += `<h3>${user.name}</h3><p>@${user.socialMediaHandle}</p>`;
     userList.appendChild(userCard);
   });
 }
+
+// Open modal to view image in full size
+function openModal(imgSrc) {
+  const modal = document.getElementById("image-modal");
+  const modalImage = document.getElementById("modal-image");
+
+  modal.style.display = "block";
+  modalImage.src = imgSrc;
+}
+
+// Close modal when the close button is clicked
+document.getElementById("close-modal").addEventListener("click", () => {
+  const modal = document.getElementById("image-modal");
+  modal.style.display = "none";
+});
 
 // Load users when the page is loaded
 window.onload = loadUsers;
