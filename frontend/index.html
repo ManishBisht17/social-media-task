@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Media Task</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Social Media Task</h1>
+
+  <!-- User Submission Form -->
+  <section id="user-form">
+    <h2>Submit Your Details</h2>
+    <form id="submission-form" enctype="multipart/form-data">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required>
+      
+      <label for="socialMediaHandle">Social Media Handle:</label>
+      <input type="text" id="socialMediaHandle" name="socialMediaHandle" required>
+      
+      <label for="images">Upload Images:</label>
+      <input type="file" id="images" name="images" multiple required>
+      
+      <button type="submit">Submit</button>
+    </form>
+  </section>
+
+  <!-- Admin Dashboard -->
+  <section id="admin-dashboard">
+    <h2>Admin Dashboard</h2>
+    <div id="user-list"></div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
