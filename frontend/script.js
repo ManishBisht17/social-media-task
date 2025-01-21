@@ -145,6 +145,3 @@ document.addEventListener("keydown", (e) => {
 
 // Load users when the page is loaded
 window.addEventListener("load", loadUsers);
-
-// Refresh users periodically (every 30 seconds)
-setInterval(loadUsers, 30000);
