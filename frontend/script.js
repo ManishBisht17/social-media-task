@@ -1,18 +1,4 @@
 // Global error handler for fetch requests
-
-const API_URL = 'https://your-backend-service-name.onrender.com';
-
-// Update all fetch calls to use API_URL
-const response = await fetch(`${API_URL}/api/users`, {
-  method: "POST",
-  body: formData,
-});
-
-// Update the loadUsers function
-async function loadUsers() {
-  const response = await fetch(`${API_URL}/api/users`);
-  // ... rest of the function
-}
 async function handleFetch(url, options = {}) {
   try {
     const response = await fetch(url, options);

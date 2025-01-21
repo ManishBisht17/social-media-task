@@ -2,10 +2,10 @@
   "name": "social-media-task",
   "version": "1.0.0",
   "description": "Social media application",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "build": "mkdir -p build && cp -r frontend/* build/"
+    "start": "server.js"
+    
   },
   "dependencies": {
     "cors": "^2.8.5",
